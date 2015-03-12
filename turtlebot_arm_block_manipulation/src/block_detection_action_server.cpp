@@ -58,6 +58,10 @@
 #include <cmath>
 #include <algorithm>
 
+// Flag to indicate block matched our target color
+#define COLOR_MATCH 0.002
+#define NO_COLOR_MATCH 0.0
+
 namespace turtlebot_arm_block_manipulation
 {
 
@@ -84,6 +88,9 @@ private:
   double block_size_;
   double table_height_;
   
+  double x_adj, y_adj, z_adj;
+  double blueRedDiff;
+  
   ros::Publisher block_pub_;
   ros::Publisher c_obj_pub_;
   
@@ -101,6 +108,17 @@ public:
       table_pose_.clear();
     }
     
+    nh_.param<double>("/block_manipulation_demo/x_adj", x_adj, .008);
+    nh_.param<double>("/block_manipulation_demo/y_adj", y_adj, 0.0);
+    nh_.param<double>("/block_manipulation_demo/z_adj", z_adj, 0.0);
+    
+    // Parameter for target color.  Note: this is RGB blue minus red.  Green 
+    // is ignored.  should switch this to true HSV hue based comparison
+    nh_.param<double>("/block_manipulation_demo/blue_red", blueRedDiff, 0.0);
+    
+    
+    ROS_INFO("Adjustments %.4f %.4f %.4f", (float) x_adj, (float) y_adj,(float) z_adj);
+    
     // Register the goal and feeback callbacks.
     as_.registerGoalCallback(boost::bind(&BlockDetectionServer::goalCB, this));
     as_.registerPreemptCallback(boost::bind(&BlockDetectionServer::preemptCB, this));
@@ -113,7 +131,7 @@ public:
     // Publish the filtered point cloud for debug purposes
     pub_ = nh_.advertise< pcl::PointCloud<pcl::PointXYZRGB> >("block_output", 1);
 
-    // Public detected blocks poses
+    // Publish detected blocks poses
     block_pub_ = nh_.advertise<geometry_msgs::PoseArray>("/turtlebot_blocks", 1, true);
   }
 
@@ -140,6 +158,13 @@ public:
                  "should be very similar", table_height_, table_pose_[2]);
       addTable();
     }
+    
+    // Reload params - TODO
+    nh_.param<double>("/block_manipulation_demo/x_adj", x_adj, .008);
+    nh_.param<double>("/block_manipulation_demo/y_adj", y_adj, 0.0);
+    nh_.param<double>("/block_manipulation_demo/z_adj", z_adj, 0.0);
+    
+    ROS_INFO("Adjustments %.4f %.4f %.4f", (float) x_adj, (float) y_adj,(float) z_adj);
   }
 
   void preemptCB()
@@ -251,6 +276,8 @@ public:
       float xmin = 0; float xmax = 0;
       float ymin = 0; float ymax = 0;
       float zmin = 0; float zmax = 0;
+      
+      unsigned long redSum=0, greenSum=0, blueSum=0, pixelCount=0;
 
       for (size_t i = 0; i < cluster_indices[c].indices.size(); i++)
       {
@@ -258,6 +285,14 @@ public:
           float x = cloud_filtered->points[j].x;
           float y = cloud_filtered->points[j].y;
           float z = cloud_filtered->points[j].z;
+          unsigned long rg = cloud_filtered->points[j].rgba;
+                 
+          // Calculate avg color of cluster  
+          pixelCount++;
+          redSum += rg & 0xff;
+          greenSum += (rg >> 8) & 0xff;
+          blueSum += (rg >> 16) & 0xff;
+          
           if (i == 0)
           {
             xmin = xmax = x;
@@ -293,11 +328,37 @@ public:
         
         if (yside < block_size_)
           angle = 0.0;
+          
+          // Then add it to our set
+        ROS_INFO("   Found new block! x=%.3f y=%.3f z=%.3f", (float) xmin + xside/2.0, (float) ymin + (float) yside/2.0, zmax - block_size_/2.0);
         
-        ROS_INFO_STREAM("xside: " << xside << " yside: " << yside << " zside " << zside << " angle: " << angle);
-        // Then add it to our set
-        ROS_INFO("Adding a new block!");
-        addBlock(xmin + xside/2.0, ymin + yside/2.0, zmax - block_size_/2.0, angle);
+        ROS_INFO_STREAM("  Block length x side: " << xside << "m y side: " << yside << "m z side " << zside << "m angle: " << angle);
+        
+        ROS_INFO("  Block color RGB  0x%x %x %x blue-red= 0x%x", redSum/pixelCount, greenSum/pixelCount, blueSum/pixelCount, (blueSum/pixelCount - redSum/pixelCount) );
+        ROS_INFO("  blue-red target= 0x%x", blueRedDiff);
+        
+        xmin += xside/2.0;
+        ymin += yside/2.0;
+        zmax -= block_size_/2.0;
+        
+        adjustBlock(&xmin, &ymin, &zmax);  // Fine tune beyond TF/calibrate 
+        
+        // TODO fix kluge to pass color match flag in zmax
+        // TODO currently uses blue minus red to give appx hue. ignores green.  should use real HSV calc instead
+        ulong dif = blueSum/pixelCount - redSum/pixelCount;
+        if (dif < blueRedDiff ) {
+             ROS_INFO("matched Target Color");
+             zmax = COLOR_MATCH;}   // COLOR_MATCH is flag for a block matching target color
+        else 
+             {
+             ROS_INFO("Does not match Target Color");
+             zmax = NO_COLOR_MATCH;
+             }
+        
+        ROS_INFO("Adding a new block! x=%.3f y=%.3f z=%.3f", (float) xmin , (float) ymin , zmax );
+        
+        if (xmin > .11 && xmin < .29)  // TODO - remove hardcoded validation for x
+           addBlock(xmin , ymin , zmax , angle, (unsigned long) blueSum/pixelCount);
       }
     }
     
@@ -305,7 +366,7 @@ public:
     {
       as_.setSucceeded(result_);
       block_pub_.publish(result_.blocks);
-      ROS_INFO("[block detection] Set as succeeded!");
+      ROS_INFO("[block detection] Succeeded!");
     }
     else
       ROS_INFO("[block detection] Couldn't find any blocks this iteration!");
@@ -315,9 +376,13 @@ public:
 
 private:
 
-  void addBlock(float x, float y, float z, float angle)
+
+  void addBlock(float x, float y, float z, float angle, unsigned long color)
   {
     geometry_msgs::Pose block_pose;
+    std_msgs::ColorRGBA rgb;
+    
+    rgb.r = color;
     block_pose.position.x = x;
     block_pose.position.y = y;
     block_pose.position.z = z;
@@ -330,6 +395,7 @@ private:
     block_pose.orientation.w = quat.w();
     
     result_.blocks.poses.push_back(block_pose);
+    // TODO use message to pass color     result_.colors.push_back(rgb);
   }
 
   void addTable()
@@ -363,6 +429,113 @@ private:
     ROS_INFO("Add the table as a collision object into the world");
     std::vector<moveit_msgs::CollisionObject> collision_objects(1, co);
     planning_scene_interface_.addCollisionObjects(collision_objects);
+  }
+  
+  
+/* 
+ CALIBRATION - this is a kluge to correct for errors in the
+   turtlebot_arm_calibration routine.  If you can fix the calibration routine that 
+   would be far better although the manual calibration below only takes about 30 minutes.  
+ 
+   1. run turtlebot_arm_calibration. Based on that you need to launch
+        a "tf" using the values returned
+   2. I found that the above didnt calibrate perfectly.  adjustBlock does
+   further calibration based on physical measurements as below:
+   3. Draw a 7x7 grid with 2cm for each box in the working area of the arm
+   4. Place a 2cm cube on the first of the boxes. 
+   5. set z offset so it will be above table and cube
+   5a.  Launch block detection
+   6. Press "D" for block detect "D" and then press "M" for block move 
+   7. when the arm goes to Pick the block, measure and record the X, Y and Z error
+      and the location of the block as reported.  Be careful to get sign correct. 
+   8. you will need to repeat this for a sample of boxes
+      covering the working area.  
+   9. Case Y adjustment.  There are 3 cases below for Y based on a range for x.
+       For each of the 3 cases below, you will need to find polynomial 
+       coefficients that gives a close match.  
+       
+       Case Y1 - Take the measurements you made where x <= 0.19.  
+       
+       Enter the x,y pairs for 4 or so measurements into:
+          http://www.wolframalpha.com/input/?i=polynomial+interpolation&lk=4
+          
+       This will give you the polynomial interpolation for your data.
+       
+       Update the a,b,c,d coefficients for Case Y1 below based on that result   
+       
+       Repeat for x between 0.19f and 0.23 for Case Y2 coefficients
+       Repeat for x>0.23 for Case Y3 coefficients
+       
+   10. I found X was off a set amount depending on X. Follow similar procedure except you should use Wolfram's linear interpolation and enter results into Case X
+   11. I found Z was off a set amount depending on X.  Follow same procedure except you should use Wolfram's linear interpolation and enter results into Case Z
+   12. Once you have the adjustments set, change the end of the adjustBlock routine 
+   to be "if (false)" so that the adjustments are used.
+   
+   ***** remove the space between the asterisk and slash below.
+* /
+
+  void adjustBlock(float *x, float *y, float *z)
+  {
+  float a, b, c, d;
+  // Misalignment is physically measured. Trendline best fit formula as below
+  
+  // TODO - you must change the adjustment factors below for case X, Y and Z
+  
+  // Case X - X adjustment factor
+  x_adj = .155 * (*x) - .06;
+
+  // Case Z - Z adjustment factor
+  *z = 0.125 * (*x) -0.085;
+  
+  ROS_INFO("## x=%.4f y=%.4f ##", *x, *y);
+  
+  // Case Y1 - Adjustments for Y
+  if ( (*x) <= 0.19f) {
+  // polynomial coefficients
+  // 24.1147 x^3 - 2.08714 x^2 + 0.138863 x - 0.00626978
+  a=24.1147;
+  b=2.08714;
+  c=0.138863;
+  d=0.00626978;
+  }
+  
+  // Case Y2 - Adjustments for Y
+  if ( (*x) > 0.19f && (*x) <= 0.23f) {
+  // polynomial coefficients
+  // 20.8859 x^3 - 1.94219 x^2 + 0.163624 x - 0.00544517
+  a=20.8859;
+  b=1.94219;
+  c=0.163624;
+  d=0.00544517;
+    }
+  
+  // Case Y3 - Adjustments for Y
+  if (*x > 0.23f) {
+  // polynomial coefficients
+  // 14.2045 x^3 - 1.0579 x^2 + 0.136905 x - 0.00219481
+  a=14.2045;
+  b=1.0579;
+  c=0.136905;
+  d=0.00219481;
+  }
+  
+  // Use above polynomial coefficients to adjust Y
+  y_adj = (a *  pow((*y),3) ) - (b * pow((*y),2)) + (c * (*y)) - d;
+  
+   ROS_INFO("y=%.4f cub=%.4f sqr=%.4f pow=%.4f",(*y),  a *  pow((*y),3) , (b * pow((*y),2)) , (c * (*y)) );
+  
+  ROS_INFO("X Adj=%.4f Y Adj=%.4f Z Adj=%.4f", (float) x_adj, (float) y_adj, (float) z_adj);
+  
+  // Should we disable adjustment?
+  if (true) {
+  ROS_INFO("adjustBlock IS DISABLED!");
+  }
+  else {
+    *x += (float) x_adj;   
+    *y += (float) y_adj;
+    }
+    
+    
   }
 
 };
