@@ -100,9 +100,9 @@
   <xacro:if value="${pincher_gripper}">
   <xacro:include filename="$(find turtlebot_arm_description)/urdf/pincher_gripper.xacro"/>
   </xacro:if>
-  <xacro:if value="${turtlebot_gripper}">
+  <!--<xacro:if value="${turtlebot_gripper}">
   <xacro:include filename="$(find turtlebot_arm_description)/urdf/turtlebot_gripper.xacro"/>
-  </xacro:if>
+  </xacro:if>-->
 
   </xacro:macro>
 

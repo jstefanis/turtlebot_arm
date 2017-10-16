@@ -2,7 +2,9 @@
   <!--  *********** Bringup turtlebot arm *********** -->
   <include file="$(find turtlebot_arm_bringup)/launch/arm.launch" />
   <!--  *********** Turtlebot arm command *********** -->
-  <node name="arbotixgui" pkg="arbotix_python" type="arbotix_gui" output="screen"/>
+  <include file="$(find turtlebot_arm_bringup)/launch/arm.launch" />
+
+
 
 
   <!--  ************ Bringup the camera ************* -->

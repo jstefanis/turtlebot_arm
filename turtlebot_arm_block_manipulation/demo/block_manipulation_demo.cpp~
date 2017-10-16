@@ -209,7 +209,7 @@ public:
       
       // TODO Fix kluge - Z POSITION WAS OVERWRITTEN TO PASS COLOR!!
       // TODO table height is hardcoded, and restored here
-      blockList[i].position.z = 0.125; //* blockList[i].position.x -0.085;
+      blockList[i].position.z = -0.1;//0.125; //* blockList[i].position.x -0.085;
       
       //ROS_INFO("   Saving block %d x=%f", i, blockList[i].position.x);
     }
