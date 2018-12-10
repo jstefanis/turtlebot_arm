@@ -2,9 +2,8 @@
 killall tmux
 
 export TURTLEBOT_ARM1=pincher
-TMUX_SESSION=Nathan_simulation
+TMUX_SESSION=Nathan_real
 TOP=/home/talos/ros/Nathan
-#TOP=$(roscd && cd .. && pwd)
 
 cd ${TOP}
 tmux new-session -s "$TMUX_SESSION" -n ${TMUX_SESSION} -d
@@ -18,6 +17,6 @@ launch_my_window()
 }
 
 launch_my_window  "rocore"     "roscore"
-launch_my_window  "arm.launch" "roslaunch turtlebot_arm_bringup arm_sim.launch "
+launch_my_window  "arm.launch" "roslaunch turtlebot_arm_bringup arm.launch "
 launch_my_window  "arm.launch" "roslaunch turtlebot_arm_bringup arm_rviz.launch "
 launch_my_window  "arbotix"    "rosrun arbotix_python arbotix_gui"
