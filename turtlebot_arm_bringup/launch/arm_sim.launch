@@ -1,8 +1,6 @@
 <launch>
-  <!-- To use, first set Environment variable TURTLEBOT_ARM1 to either:
-   turtlebot or pincher (for Trossen PhantomX Pincher) -->
-   
-  <arg name="simulation" default="false"/>
+  
+  <arg name="simulation" default="true"/>
 
   <!--Here we broadcast our final coordinate system for the gripper, since gripper_finger_base_link from the arbotix package is
       not centered at the gripper for our PhantomX Pincher arm. We choose the name gripper_link since the turtlebot_arm package depends on it. -->

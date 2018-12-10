@@ -2,31 +2,22 @@
 killall tmux
 
 export TURTLEBOT_ARM1=pincher
-TMUX_SESSION=Nathan1
+TMUX_SESSION=Nathan_simulation
 TOP=/home/talos/ros/Nathan
 #TOP=$(roscd && cd .. && pwd)
 
-
-tmux new-session -s "$TMUX_SESSION" -n $(pwd) -d
+cd ${TOP}
+tmux new-session -s "$TMUX_SESSION" -n ${TMUX_SESSION} -d
 
 launch_my_window()
 {
-    WINDOW=$1
-    NAME=$2
-    COMMAND=$3
-    tmux new-window -t "$TMUX_SESSION:$WINDOW" -n "$NAME" 
-    tmux send -t "cd ${TOP}" ENTER
-    tmux send -t "$TMUX_SESSION:$WINDOW" "${COMMAND}" ENTER
+    NAME=$1
+    COMMAND=$2
+    tmux new-window -n "$NAME" "${COMMAND}" 
     sleep 1
 }
 
-launch_my_window 1 "rocore" "roscore"
-launch_my_window 2 "arm.launch" "roslaunch turtlebot_arm_bringup arm.launch simulation:=true"
-launch_my_window 3 "arbotix" "rosrun arbotix_python arbotix_gui"
-launch_my_window 4 "moveit"  "roslaunch turtlebot_arm_moveit_config turtlebot_arm_moveit.launch"
-
-#...
-
-# Select window #1 and attach to the WINDOW
-tmux select-window -t "$TMUX_SESSION:2"
-tmux -2 attach-session -t "$TMUX_SESSION"
+launch_my_window  "rocore"     "roscore"
+launch_my_window  "arm.launch" "roslaunch turtlebot_arm_bringup arm_sim.launch "
+launch_my_window  "arm.launch" "roslaunch turtlebot_arm_bringup arm_rviz.launch "
+launch_my_window  "arbotix"    "rosrun arbotix_python arbotix_gui"

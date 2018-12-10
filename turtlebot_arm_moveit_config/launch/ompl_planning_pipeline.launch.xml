@@ -12,14 +12,7 @@
 				       default_planner_request_adapters/FixStartStatePathConstraints" />
 
   <arg name="start_state_max_bounds_error" value="0.1" />
-<!--
-[ INFO] [1507735894.899769698]: Param 'default_workspace_bounds' was not set. Using default value: 10
-[ INFO] [1507735894.900303392]: Param 'start_state_max_bounds_error' was set to 0.1
-[ INFO] [1507735894.900669158]: Param 'start_state_max_dt' was not set. Using default value: 0.5
-[ INFO] [1507735894.901058632]: Param 'start_state_max_dt' was not set. Using default value: 0.5
-[ INFO] [1507735894.901474463]: Param 'jiggle_fraction' was set to 0.05
-[ INFO] [1507735894.901897947]: Param 'max_sampling_attempts' was not set. Using default value: 100
--->
+
   <param name="planning_plugin" value="$(arg planning_plugin)" />
   <param name="request_adapters" value="$(arg planning_adapters)" />
   <param name="start_state_max_bounds_error" value="$(arg start_state_max_bounds_error)" />
