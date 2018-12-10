@@ -2,7 +2,7 @@
 killall tmux
 
 export TURTLEBOT_ARM1=pincher
-TMUX_SESSION=Nathan_simulation
+TMUX_SESSION=Nathan_calib
 TOP=/home/talos/ros/Nathan
 
 cd ${TOP}
@@ -16,12 +16,10 @@ launch_my_window()
     sleep 1
 }
 
-launch_my_window  "rocore"     "roscore"
-launch_my_window  "arm.launch" "roslaunch turtlebot_arm_bringup arm_sim.launch "
-launch_my_window  "arm.sim" "roslaunch turtlebot_arm_bringup arm_rviz.launch "
-launch_my_window  "arbotix"    "rosrun arbotix_python arbotix_gui"
+launch_my_window  "rocore"      "roscore"
+launch_my_window  "arm"         "roslaunch turtlebot_arm_bringup arm.launch "
+launch_my_window  "kinect"      "roslaunch freenect_launch freenect.launch"
+launch_my_window  "calibrate"   "roslaunch turtlebot_arm_kinect_calibration calibrate.launch"
 
 tmux select-window -t "$TMUX_SESSION:2"
-
-sleep 10
 tmux attach-session
