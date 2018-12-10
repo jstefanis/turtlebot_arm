@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot>
+	<property name="turtlebot_calib_cam_x" value="nan" />
+	<property name="turtlebot_calib_cam_y" value="nan" />
+	<property name="turtlebot_calib_cam_z" value="nan" />
+	<property name="turtlebot_calib_cam_rr" value="-nan" />
+	<property name="turtlebot_calib_cam_rp" value="nan" />
+	<property name="turtlebot_calib_cam_ry" value="-nan" />
+	<property name="turtlebot_kinect_frame_name" value="base_link" />
+</robot>
+

@@ -27,6 +27,13 @@ target_link_libraries(calibrate_kinect_checkerboard ${Boost_LIBRARIES}
                                                     ${PCL_LIBRARIES}
                                                     ${OpenCV_LIBRARIES})
 
+
+# Configuration file
+configure_file(
+    ${PROJECT_SOURCE_DIR}/src/config.h.in
+    ${PROJECT_SOURCE_DIR}/src/config.h
+)
+
 # install
 
 install(TARGETS calibrate_kinect_checkerboard

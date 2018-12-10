@@ -8,6 +8,10 @@
   <!--  ************ Bringup the camera ************* -->
   <include file="$(find freenect_launch)/launch/freenect.launch" />
 
+  <!--* Then we open a arbotix GUI to control the different motors of the arm *-->
+  <node respawn="true" name="arbotixgui" pkg="phantomx_arm_calibration" type="arbotix_gui" output="screen"/>
+
+
   <!--  ************* Calibration stuff ************* -->
   <node name="calibrate_kinect_checkerboard" pkg="turtlebot_arm_kinect_calibration" type="calibrate_kinect_checkerboard" output="screen">
     <param name="gripper_tip_x" value="-0.002" />
