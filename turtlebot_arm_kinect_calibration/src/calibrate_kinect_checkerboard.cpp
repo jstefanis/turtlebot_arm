@@ -47,6 +47,11 @@
 
 #include <turtlebot_arm_kinect_calibration/detect_calibration_pattern.h>
 
+#include <sstream>
+#include <boost/filesystem.hpp>
+
+#include "config.h"
+
 using namespace std;
 using namespace Eigen;
 
@@ -359,8 +364,23 @@ public:
 
     cout << "rosrun tf static_transform_publisher x y z qx qy qz qw frame_id child_frame_id period_in_ms" << endl;
     cout << "rosrun tf static_transform_publisher " << translation.x() << " " << translation.y() << " "
-         << translation.z() << " " << quat.x() << " " << quat.y() << " " << quat.z() << " " << quat.w()
-         << " " << frame1 << " " << frame2 << " 100" << endl << endl;
+           << translation.z() << " " << quat.x() << " " << quat.y() << " " << quat.z() << " " << quat.w()
+           << " " << frame1 << " " << frame2 << " 100" << endl << endl;
+
+    // Save calibration parameters to a file
+    ofstream file_launcher;
+    boost::filesystem::path current_dir = boost::filesystem::current_path();
+    boost::filesystem::current_path(PROJECT_SOURCE_LAUNCHER_PATH);
+    std::cout << "Current path is : " << boost::filesystem::current_path() << std::endl;
+    file_launcher.open(LAUNCHER_FILENAME);
+    file_launcher << "<launch>\n";
+    file_launcher << "   <node pkg=\"tf\" name=\"transform_publisher\" type=\"static_transform_publisher\" args=\"";
+    file_launcher << translation.x() << " " << translation.y() << " " << translation.z() << " " << quat.x() << 
+            " " << quat.y() << " " << quat.z() << " " << quat.w() << " " << frame1 << " " << frame2 << " 100" ;
+    file_launcher << "\" />\n";
+    file_launcher << "</launch>\n";
+    file_launcher.close(); 
+
 
     tf::Transform temp_tf_trans = tfFromEigen(transform);
 
@@ -377,7 +397,9 @@ public:
 
     cout << "URDF output (use for kinect on robot): " << endl;
 
-    cout << "<?xml version=\"1.0\"?>\n<robot>\n" << "\t<property name=\"turtlebot_calib_cam_x\" value=\""
+
+  std::stringstream buffer;
+  buffer << "<?xml version=\"1.0\"?>\n<robot>\n" << "\t<property name=\"turtlebot_calib_cam_x\" value=\""
          << translation.x() << "\" />\n" << "\t<property name=\"turtlebot_calib_cam_y\" value=\"" << translation.y()
          << "\" />\n" << "\t<property name=\"turtlebot_calib_cam_z\" value=\"" << translation.z() << "\" />\n"
          << "\t<property name=\"turtlebot_calib_cam_rr\" value=\"" << roll << "\" />\n"
@@ -385,6 +407,16 @@ public:
          << "\t<property name=\"turtlebot_calib_cam_ry\" value=\"" << yaw << "\" />\n"
          << "\t<property name=\"turtlebot_kinect_frame_name\" value=\"" << fixed_frame_urdf << "\" />\n" << "</robot>"
          << endl << endl;
+    cout << buffer.str();
+
+    ofstream xml_params_file;
+    xml_params_file.open(XML_PARAMS_FILE);
+    xml_params_file << buffer.str();
+    xml_params_file.close();
+
+
+
+    boost::filesystem::current_path(current_dir);
   }
 
   void addPhysicalPoint()
