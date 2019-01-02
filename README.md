@@ -38,8 +38,8 @@ __Content:__
 - turtlebot_arm _bringup: Bring up robot (real or simulation)
 - turtlebot_arm_description: Robot and gripper description files
 - turtlebot_arm_kinect_calibration: Calibrate the robot
-- turtlebot_arm_moveit_config: TODO
-- turtlebot_arm_block_manipulation: TODO
+- turtlebot_arm_moveit_config: Move it configuration
+- turtlebot_arm_block_manipulation: Pick and place demo
 
 __1. Getting started:__
 
@@ -61,7 +61,7 @@ __2. Kinect/Arm calibration:__
 - The complete checkerboard have to be in the kinect field of view
 - Be sure that the arm can reach every point on the checkerboard
 
-3.3 Calibration:
+2.3 Calibration:
 
 Start up the kinect and the arm
 
@@ -133,12 +133,12 @@ Whichever visualization option you chose, the kinect pointcloud  should line up 
 
 __3. Path planning:__
 
-2.1 - Path planning simulation :
+3.1 - Path planning simulation :
 
 	roslaunch turtlebot_arm_moveit_config turtlebot_arm_moveit_sim.launch 
 
 
-2.2 - Path planning with a real arm :
+3.2 - Path planning with a real arm :
 
 	roslaunch turtlebot_arm_bringup arm.launch
 	roslaunch turtlebot_arm_moveit_config turtlebot_arm_moveit.launch 
