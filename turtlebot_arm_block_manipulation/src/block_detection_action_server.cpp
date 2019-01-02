@@ -215,7 +215,7 @@ public:
     pass.setInputCloud(cloud_transformed);
     pass.setFilterFieldName("z");
 
-    pass.setFilterLimits(table_height_ - 0.05, table_height_ + block_size_ + 0.05);
+    pass.setFilterLimits(table_height_ - 0.05, table_height_ + block_size_ + 0.5);
     pass.filter(*cloud_filtered);
     if (cloud_filtered->points.size() == 0)
     {
@@ -386,7 +386,7 @@ private:
     rgb.r = color;
     block_pose.position.x = x;
     block_pose.position.y = y;
-    block_pose.position.z = z;
+    block_pose.position.z = z-0.065;
     
     Eigen::Quaternionf quat(Eigen::AngleAxis<float>(angle, Eigen::Vector3f(0,0,1)));
     
