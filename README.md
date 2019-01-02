@@ -45,66 +45,33 @@ __1. Getting started:__
 
 1.1 Command the arm from arbotix gui :
 
-	#Edit turtlebot_arm_bringup launch file and set the correct USB port
+Choose a launcher
 	roslaunch turtlebot_arm_bringup arm.launch
+	roslaunch turtlebot_arm_bringup arm_sim.launch
+	roslaunch turtlebot_arm_bringup arm_calibrated.launch
+
+and then
 	rosrun arbotix_python arbotix_gui
 
-<p align="center">
-<img src="https://github.com/NathanCrombez/PhantomXPincherArmROS/blob/master/images/arbotix_gui.png" width="45%" height="45%" title="arbotix gui">
-</p>
 
+__2. Kinect/Arm calibration:__
 
-__2. Path planning:__
-
-2.1 - Path planning simulation :
-
-	roslaunch turtlebot_arm_moveit_config turtlebot_arm_moveit.launch 
-
-<p align="center">	
-<img src="https://github.com/NathanCrombez/PhantomXPincherArmROS/blob/master/images/pathplanning.png " width="50%" height="50%" title="rviz path planning">
-</p>
-
-
-2.2 - Path planning with a real arm :
-
-	#Edit turtlebot_arm_moveit launch file and pass the argument "sim" to "false".
-	roslaunch turtlebot_arm_bringup arm.launch
-	roslaunch turtlebot_arm_moveit_config turtlebot_arm_moveit.launch 
-	
-Video:
-
-[![YOUTUBE VIDEO](https://img.youtube.com/vi/srDlH51DyNc/0.jpg)](https://youtu.be/srDlH51DyNc)
-
-
-
-
-__3. Kinect/Arm calibration:__
-
-3.1 Requirements:
+2.1 Requirements:
 - Calibration checkerboard (7x6 27mm) : [here](http://wiki.ros.org/turtlebot_kinect_arm_calibration/Tutorials/CalibratingKinectToTurtleBotArm?action=AttachFile&do=get&target=check_7x6_27mm.pdf) 
 - The complete checkerboard have to be in the kinect field of view
 - Be sure that the arm can reach every point on the checkerboard
 
-<p align="center">
-<img src="https://github.com/NathanCrombez/PhantomXPincherArmROS/blob/master/images/setup.jpg" width="50%" height="50%" title="setup">
-</p>
-
-3.2 Calibration:
+3.3 Calibration:
 
 Start up the kinect and the arm
 
-	roslaunch freenect_launch freenect.launch #Use factory-calibration registration
-	roslaunch turtlebot_arm_bringup myarm.launch #launch perso TODO: why do we need a fake_joint_pubisher ??
+	roslaunch turtlebot_arm_bringup arm.launch
 	
 Launch the calibration program
 
 	roslaunch turtlebot_arm_kinect_calibration calibrate.launch
 	
 First, this should detect the checkerboard and pop up the image shown below, with the calibration pattern edges overlaid and four points marked on the image. 
-
-<p align="center">
-<img src="https://github.com/NathanCrombez/PhantomXPincherArmROS/blob/master/images/cornersdetection.png" width="50%" height="50%" title="cornersdetection">
-</p>
 
 As the terminal instructions say,  move the right part of the open gripper to the four specified points like on the following photos. 
 
@@ -116,14 +83,10 @@ As the terminal instructions say,  move the right part of the open gripper to th
 	Move edge of gripper to point 1 in image and press Enter
 	[....]
 	
-<p align="center">	
-<img src="https://github.com/NathanCrombez/PhantomXPincherArmROS/blob/master/images/corner1.jpg" width="50%" height="50%" title="corner 1">
-<img src="https://github.com/NathanCrombez/PhantomXPincherArmROS/blob/master/images/corner2.jpg" width="50%" height="50%" title="corner 2">
-<img src="https://github.com/NathanCrombez/PhantomXPincherArmROS/blob/master/images/corner3.jpg" width="50%" height="50%" title="corner 3">
-</p>
 
 After moving to the fourth point, the calibration script will output something like the following: 
 
+TODO: Use our numbers
 
 	Resulting transform (camera frame -> fixed frame): 
 	  0.103775   0.992602  0.0630181  -0.202959
@@ -159,30 +122,37 @@ Run the static transform output with the script:
 
 As long as this command runs, the static_transform_publisher will publish the transform between the arm frame and the kinect frame. If you move the physical camera, you will need to recalibrate again. 
 
+Also in directory  turtlebot_arm/turtlebot_arm_kinect_calibration/launch/ it will create 2 files
+- calibration_properties_calibrated.xml
+- transformation_calibrated.launch
+The launcher can be inserted in other launch files to have the transformation applied.
+
 
 Whichever visualization option you chose, the kinect pointcloud  should line up with the actual position of the arm in rviz, as shown in the image below. 
 
-<p align="center">
-<img src="https://github.com/NathanCrombez/PhantomXPincherArmROS/blob/master/images/aftercalibframes.png " width="50%" height="50%" title="after calibration frames">
-<img src="https://github.com/NathanCrombez/PhantomXPincherArmROS/blob/master/images/aftercalib.png " width="50%" height="50%" title="after calibration">
-<img src="https://github.com/NathanCrombez/PhantomXPincherArmROS/blob/master/images/aftercalibrealtruth.jpg" width="50%" height="50%" title="after calib real truth">
-</p>
 
+__3. Path planning:__
+
+2.1 - Path planning simulation :
+
+	roslaunch turtlebot_arm_moveit_config turtlebot_arm_moveit_sim.launch 
+
+
+2.2 - Path planning with a real arm :
+
+	roslaunch turtlebot_arm_bringup arm.launch
+	roslaunch turtlebot_arm_moveit_config turtlebot_arm_moveit.launch 
+	
 
 
 __4. Block manipulation:__
 
 Explanations: TODO
 
-	rosrun tf static_transform_publisher 0.424262 0.0548834 0.943436 -0.480766 -0.00262613 0.874737 0.0607612 /base_link /camera_link 100
 	roslaunch block_manip_complete.launch
-	
-	
-Video :
-
- [![YOUTUBE VIDEO](https://img.youtube.com/vi/zvuJRbIJwj8/0.jpg)](https://youtu.be/zvuJRbIJwj8)
 
 
+TODO: Images and Video
 
 
 
