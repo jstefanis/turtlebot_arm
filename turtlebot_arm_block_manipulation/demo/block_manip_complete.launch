@@ -21,7 +21,7 @@
   </include>
 
   <!-- Include Calibration -->
-  <include file="$(find turtlebot_arm_kinect_calibration)/launch/transformation.launch">
+  <include file="$(find turtlebot_arm_kinect_calibration)/launch/transformation_calibrated.launch">
 
   <!--  ************* Kinect bringup stuff ************* -->
   <include file="$(find freenect_launch)/launch/freenect.launch" />

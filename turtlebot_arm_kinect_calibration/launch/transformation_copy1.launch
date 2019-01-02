@@ -1,3 +1,0 @@
-<launch>
-   <node name="transform_publisher" type="static_transform_publisher" args="-1.00788e-17 0.045 6.93184e-21 1.5784e-19 -0.000710847 0 0.702669 /base_link /camera_link 100" />
-</launch>
