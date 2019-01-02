@@ -1,7 +1,6 @@
 <launch>
 
   <!--  ************* Arm bringup stuff ************* -->
-
   <include file="$(find turtlebot_arm_bringup)/launch/arm.launch" />
 
   <node name="arbotix_gui" pkg="arbotix_python" type="arbotix_gui" output="screen"/>
@@ -21,6 +20,8 @@
     <arg name="info" value="true"/>
   </include>
 
+  <!-- Include Calibration -->
+  <include file="$(find turtlebot_arm_kinect_calibration)/launch/transformation.launch">
 
   <!--  ************* Kinect bringup stuff ************* -->
   <include file="$(find freenect_launch)/launch/freenect.launch" />
