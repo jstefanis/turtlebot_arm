@@ -1,7 +1,7 @@
 <launch>
 
   <!-- By default, run in simulation mode -->
-  <arg name="sim" default="true" />
+  <arg name="sim" default="false" />
 
   <!-- By default, we do not start a database (it can be large) -->
   <arg name="db" default="false" />
