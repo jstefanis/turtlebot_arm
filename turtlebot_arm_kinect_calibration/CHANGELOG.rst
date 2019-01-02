@@ -2,6 +2,10 @@
 Changelog for package turtlebot_arm_kinect_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.4 (1018)
+------------
+Addaptive Calibration
+
 0.3.3 (2014-09-20)
 ------------------
 
