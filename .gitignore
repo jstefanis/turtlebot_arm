@@ -1,0 +1,4 @@
+# Ignore README toc files
+README.md.orig.*
+README.md.toc.*
+

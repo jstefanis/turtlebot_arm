@@ -1,5 +1,27 @@
 # PhantomX Pincher arm under ROS indigo 
 
+<!--  gh-md-toc --insert README.md -->
+<!--ts-->
+   * [PhantomX Pincher arm under ROS indigo](#phantomx-pincher-arm-under-ros-indigo)
+      * [Packages installation](#packages-installation)
+      * [arbotix](#arbotix)
+      * [turtlebot_arm ROS package](#turtlebot_arm-ros-package)
+
+<!-- Added by: talos, at: 2019-01-05T20:48+01:00 -->
+
+<!--te-->
+
+
+The phantom pincherX is a controllable robotic arm but there is no camera on itself. The goal
+of this project will be to coordinate the arm with a kinect both plugged on the same computer to
+first, find an object and then grab it, we will drop it on a loading platform which will be represented
+by our robot.
+
+
+<p align="center">
+<img src="https://github.com/NathanCrombez/PhantomXPincherArmROS/blob/master/images/pincher.jpg" align ="middle" width="60%" height="60%" title="header">
+</p>
+
 ## Packages installation 
 
 __Turtlebot Arm__:
@@ -27,10 +49,12 @@ The arm architecture is described in a yaml file. USB port, number of joints, li
 		gripper_joint: {id: 5, max_angle: 0, min_angle: -180, max_speed: 90}
 	}
 	controllers: {
- 		arm_controller: {type: follow_controller, joints: [arm_shoulder_pan_joint, arm_shoulder_lift_joint,  arm_elbow_flex_joint, arm_wrist_flex_joint], action_name: arm_controller/follow_joint_trajectory,  onboard: False }
+ 		arm_controller: {type: follow_controller, joints: [arm_shoulder_pan_joint,  
+		arm_shoulder_lift_joint,  arm_elbow_flex_joint, arm_wrist_flex_joint],   
+		action_name: arm_controller/follow_joint_trajectory,  onboard: False }
 	}
 	
-see ROS by examples vol.2 for further information.
+see ROS by examples vol.2 for further information.  arbotix V10.0 or better is need it.
 
 ## turtlebot_arm ROS package
 __Content:__
@@ -43,6 +67,17 @@ __Content:__
 
 __1. Getting started:__
 
+The setup is composed of several parts. We have a table where is disposed the robotic arm, this
+table will be our station where we will let the object to be picked up. We also have the kinect on
+a stake to have the view on our robot table. The last object used will be a turtlebot, for us the
+turtlebot will be another work platform. It will be considered as a motionless platform because we
+are not supposed to manage the robot movement on this project. The hardware setup is showed
+in the figure.
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/jtsagata/turtlebot_arm/master/images/arm.jpg" width="50%" >
+</p>
+
 1.1 Command the arm from arbotix gui :
 
 Choose a launcher
@@ -52,6 +87,8 @@ Choose a launcher
 
 and then
 	rosrun arbotix_python arbotix_gui
+
+
 
 
 __2. Kinect/Arm calibration:__
@@ -71,9 +108,14 @@ Launch the calibration program
 
 	roslaunch turtlebot_arm_kinect_calibration calibrate.launch
 	
-First, this should detect the checkerboard and pop up the image shown below, with the calibration pattern edges overlaid and four points marked on the image. 
+First, this should detect the checkerboard and pop up the calibration image , with the calibration pattern edges overlaid and four points marked on the image. 
 
-As the terminal instructions say,  move the right part of the open gripper to the four specified points like on the following photos. 
+<p align="center">
+<img src="https://raw.githubusercontent.com/jtsagata/turtlebot_arm/master/images/calibration1.png" width="50%" >
+</p>
+
+As the terminal instructions say,  move the right part of the open gripper to the four specified points.
+
 
 
 	[ INFO] [1507636573.094797721]: [calibrate] Initialized.
@@ -85,8 +127,6 @@ As the terminal instructions say,  move the right part of the open gripper to th
 	
 
 After moving to the fourth point, the calibration script will output something like the following: 
-
-TODO: Use our numbers
 
 	Resulting transform (camera frame -> fixed frame): 
 	  0.103775   0.992602  0.0630181  -0.202959
@@ -116,19 +156,18 @@ TODO: Use our numbers
 		<property name="turtlebot_kinect_frame_name" value="base_link" />
 	</robot>
 
-Run the static transform output with the script:
 
-	rosrun tf static_transform_publisher 0.424262 0.0548834 0.943436 -0.480766 -0.00262613 0.874737 0.0607612 /base_link /camera_link 100
+In directory  turtlebot_arm/turtlebot_arm_kinect_calibration/launch/ it will create 2 files
 
-As long as this command runs, the static_transform_publisher will publish the transform between the arm frame and the kinect frame. If you move the physical camera, you will need to recalibrate again. 
-
-Also in directory  turtlebot_arm/turtlebot_arm_kinect_calibration/launch/ it will create 2 files
 - calibration_properties_calibrated.xml
-- transformation_calibrated.launch
-The launcher can be inserted in other launch files to have the transformation applied.
+
+- transformation_calibrated.launch  
+The generated launcher is inserted in other launch files and the tf  transformation is applied.
 
 
-Whichever visualization option you chose, the kinect pointcloud  should line up with the actual position of the arm in rviz, as shown in the image below. 
+<p align="center">
+<img src="https://raw.githubusercontent.com/jtsagata/turtlebot_arm/master/images/calibrate.jpg" width="50%" >
+</p>
 
 
 __3. Path planning:__
@@ -147,13 +186,16 @@ __3. Path planning:__
 
 __4. Block manipulation:__
 
-Explanations: TODO
+To luanch the pick and place demo
 
-	roslaunch block_manip_complete.launch
+	roslaunch turtlebot_arm_block_manipulation block_manip_complete.launch
 
+__5. Videos:__
+ 
+ [![YOUTUBE VIDEO](https://img.youtube.com/vi/iM84Hm2mf9M/0.jpg)](https://youtu.be/iM84Hm2mf9M)
+ 
 
-TODO: Images and Video
-
+ [![YOUTUBE VIDEO](https://img.youtube.com/vi/DpBVlNA4c2Q/0.jpg)](https://youtu.be/DpBVlNA4c2Q)
 
 
 
