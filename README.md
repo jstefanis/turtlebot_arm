@@ -17,21 +17,19 @@ This project is part of larger project, where multiple robit is working together
    * [Packages installation and setup](#packages-installation-and-setup)
       * [Clonning the repository:](#clonning-the-repository)
       * [Forked repositories](#forked-repositories)
-   * [Getting started:](#getting-started)
-         * [Setup arbotix servos](#setup-arbotix-servos)
-         * [Command the arm from arbotix gui :](#command-the-arm-from-arbotix-gui-)
+   * [Getting started](#getting-started)
+      * [Setup arbotix servos](#setup-arbotix-servos)
+      * [Command the arm from arbotix gui :](#command-the-arm-from-arbotix-gui-)
    * [Calibration](#calibration)
       * [Calibration requirements](#calibration-requirements)
       * [Calibration procedure](#calibration-procedure)
    * [Path planning](#path-planning)
-         * [Path planning demo](#path-planning-demo)
+      * [Path planning demo](#path-planning-demo)
    * [Block detection and manipulation:](#block-detection-and-manipulation)
       * [Pick and place](#pick-and-place)
       * [Demonstration](#demonstration)
    * [Videos:](#videos)
    * [Contributions problems and conclusion](#contributions-problems-and-conclusion)
-
-
 
 
 
@@ -90,7 +88,7 @@ We had issues with the robot description so this repository is a merge from code
 - https://github.com/NathanCrombez/turtlebot_arm
 - https://github.com/NathanCrombez/turtlebot_arm
 
-# Getting started:
+# Getting started
 
 The setup is composed of several parts. We have a table where is disposed the robotic arm, this
 table will be our station where we will let the object to be picked up. We also have the kinect on
