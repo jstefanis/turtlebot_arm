@@ -1,13 +1,27 @@
-# PhantomX Pincher arm under ROS indigo 
+# Turtlebot with PincherX project
 
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/jtsagata/turtlebot_arm/master/images/header.jpg" align ="middle" width="60%" height="60%" title="header">
+</p>
+
+## About the project
+This project is part of larger project, where multiple robit is working together to implement a larger __scenario__. First the turtlebot have to navivate to the **loading** area. When the robot is at the right spot, an arm must pick a **green cube** and put it on the robot base.   Then the robot must navigate to the **drop** area. When in place the green cube must take the cube and place it in the **drop** area. We focus on the pick and place tasks
+ 
+ 
+## Table of contents
 <!--  gh-md-toc --insert README.md -->
 <!--ts-->
-   * [PhantomX Pincher arm under ROS indigo](#phantomx-pincher-arm-under-ros-indigo)
-      * [Packages installation](#packages-installation)
-      * [arbotix](#arbotix)
-      * [turtlebot_arm ROS package](#turtlebot_arm-ros-package)
+   * [Turtlebot with PincherX project](#turtlebot-with-pincherx-project)
+      * [About the project](#about-the-project)
+      * [Table of contents](#table-of-contents)
+   * [Packages installation and setup](#packages-installation-and-setup)
+      * [Clonning the repository:](#clonning-the-repository)
+      * [Forked repositories](#forked-repositories)
+   * [Getting started:](#getting-started)
+         * [Setup arbotix servos](#setup-arbotix-servos)
 
-<!-- Added by: talos, at: 2019-01-05T20:48+01:00 -->
+<!-- Added by: talos, at: 2019-01-06T13:40+01:00 -->
 
 <!--te-->
 
@@ -18,23 +32,75 @@ first, find an object and then grab it, we will drop it on a loading platform wh
 by our robot.
 
 
-<p align="center">
-<img src="https://github.com/NathanCrombez/PhantomXPincherArmROS/blob/master/images/pincher.jpg" align ="middle" width="60%" height="60%" title="header">
-</p>
+# Packages installation and setup
+The ROS packages in the repository :
 
-## Packages installation 
+* **turtlebot_arm**  
+  The turtlebot arm meta package  
+  More info at http://ros.org/wiki/turtlebot_arm
+  
+* **turtlebot_arm_block_manipulation**  
+  The turtlebot_arm_block_manipulation contains our working demo, as well as, a demo
+  allowing the TurtleBot arm
+  to manipulate small blocks on a level surface using interactive markers.  
+  More info at http://ros.org/wiki/turtlebot_arm_block_manipulation
 
-__Turtlebot Arm__:
-The turtlebot_arm package provides bringup, description, and utilities for using the turtlebot arm. 
-The Kinetic version provides code for the PhantomX Pincher. The Kinectic version works with ROS Indigo except "turtlebot_arm_object_manipulation" and "turtlebot_arm_block_manipulation".
-Installation from source:
+* **turtlebot_arm_bringup**  
+  Provides launch files for starting the drivers for the TurtleBot arm.  
+  More info at http://ros.org/wiki/turtlebot_arm_bringup
+
+* **turtlebot_arm_description**  
+  This package contains URDF files and meshes for the TurtleBot arm.  
+  More info at http://ros.org/wiki/turtlebot_arm_description
+
+* **turtlebot_arm_ikfast_plugin**  
+  IKFast61 plugin for closed-form kinematics  
+  More info at  http://ros.org/wiki/turtlebot_arm_ikfast_plugin
+  
+* **turtlebot_arm_kinect_calibration**  
+  This package, allows calibration of a kinect to a TurtleBot arm,
+  including a kinect on-board and off-board the TurtleBot for more precise manipulation.
+   More info at http://ros.org/wiki/turtlebot_arm_kinect_calibration
+
+* **turtlebot_arm_moveit_config**  
+    An automatically generated package, using movit wizard, with all the configuration and launch files for     using the turtlebot_arm with the MoveIt Motion Planning Framework  
+    More info at https://github.com/turtlebot/turtlebot_arm and http://moveit.ros.org/
+
+* **turtlebot_arm_moveit_demos**  
+  The turtlebot_arm_moveit_demos package contains scripts to start playing with a turtlebot arm and MoveIt.
+  More info at http://ros.org/wiki/turtlebot_arm_moveit_demos
+
+All the packages  is compatible with the ros **indigo** distribution. Arbotix must be at V10.0 or better. 
+
+The repository also contains **tmux** scripts to automatate sessions in folder **scripts**, bash and zsh configuration files in the same folder. Also, the images direcory contains images used in this readme.
+
+## Clonning the repository:
+The repository must be cloned first and the packages must be compiled at the target machine. On target machine a ros indigo installation with moveit, rviz, arbotix and alll required packages must be installed first.
 
 	cd ~/ros/indigo/catkin_ws/src
 	git clone  https://github.com/jtsagata/turtlebot_arm
 	cd .. && catkin_make
 
-	
-## arbotix
+## Forked repositories
+We had issues with the robot description so this repository is a merge from code taken from 
+
+- https://github.com/NathanCrombez/turtlebot_arm
+- https://github.com/NathanCrombez/turtlebot_arm
+
+# Getting started:
+
+The setup is composed of several parts. We have a table where is disposed the robotic arm, this
+table will be our station where we will let the object to be picked up. We also have the kinect on
+a stake to have the view on our robot table. The last object used will be a turtlebot, for us the
+turtlebot will be another work platform. It will be considered as a motionless platform because we
+are not supposed to manage the robot movement on this project. The hardware setup is showed
+in the figure.
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/jtsagata/turtlebot_arm/master/images/arm.jpg" width="50%" >
+</p>
+
+### Setup arbotix servos
 
 The arm architecture is described in a yaml file. USB port, number of joints, limits...
 
@@ -56,27 +122,8 @@ The arm architecture is described in a yaml file. USB port, number of joints, li
 	
 see ROS by examples vol.2 for further information.  arbotix V10.0 or better is need it.
 
-## turtlebot_arm ROS package
-__Content:__
 
-- turtlebot_arm _bringup: Bring up robot (real or simulation)
-- turtlebot_arm_description: Robot and gripper description files
-- turtlebot_arm_kinect_calibration: Calibrate the robot
-- turtlebot_arm_moveit_config: Move it configuration
-- turtlebot_arm_block_manipulation: Pick and place demo
 
-__1. Getting started:__
-
-The setup is composed of several parts. We have a table where is disposed the robotic arm, this
-table will be our station where we will let the object to be picked up. We also have the kinect on
-a stake to have the view on our robot table. The last object used will be a turtlebot, for us the
-turtlebot will be another work platform. It will be considered as a motionless platform because we
-are not supposed to manage the robot movement on this project. The hardware setup is showed
-in the figure.
-
-<p align="center">
-<img src="https://raw.githubusercontent.com/jtsagata/turtlebot_arm/master/images/arm.jpg" width="50%" >
-</p>
 
 1.1 Command the arm from arbotix gui :
 
@@ -197,6 +244,9 @@ __5. Videos:__
 
  [![YOUTUBE VIDEO](https://img.youtube.com/vi/DpBVlNA4c2Q/0.jpg)](https://youtu.be/DpBVlNA4c2Q)
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/jtsagata/turtlebot_arm/master/images/turtlebot.png" align ="middle" width="20%"  title="header">
+</p>
 
 
 

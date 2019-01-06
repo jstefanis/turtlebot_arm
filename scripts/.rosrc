@@ -1,0 +1,90 @@
+#!/bin/bash
+source ~/.ros-mode
+#export ROS_MODE=rbx
+#export ROS_MODE=local
+#export ROS_MODE=remote
+
+_shell="$(ps -p $$ --no-headers -o comm=)"                                                                     
+function shell_info() {
+    if [[ $_shell == "zsh" ]]; then                                                                                                                  
+        echo ${blue}Your current shell is: ${yellow}zsh${reset}                                                                                                                                        
+    elif [[ $_shell == "bash" || $_shell == "sh" ]]; then                                                                                              
+        echo ${blue}Your current shell is: ${yellow}bash${reset}                                                                                                            
+    fi 
+}
+
+
+## ROS
+function ros_printenv () {
+    printenv | grep ROS | sort | column -s= -t | expand |  cut -c-$(tput cols)
+}
+
+function ros_print_mode () {
+    echo "${blue}ROS mode is in ${green}${ROS_MODE}${reset} mode."
+}
+
+function rbx() {
+  source /opt/ros/indigo/setup.zsh;
+  source ${HOME}/ros/indigo/ros_by_example/devel/setup.zsh
+  export ROS_MODE="rbx"
+  roscd
+}
+
+function roson() {
+    if [[ $_shell == "zsh" ]]; then                                                                                                                  
+        source /opt/ros/indigo/setup.zsh;
+        source ${HOME}/ros/indigo/catkin_ws/devel/setup.zsh                                                                                                                                        
+    elif [[ $_shell == "bash" || $_shell == "sh" ]]; then                                                                                              
+        source /opt/ros/indigo/setup.bash
+        source ${HOME}/ros/indigo/catkin_ws/devel/setup.bash                                                                                                            
+    fi
+    
+    export ROS_MODE=local
+    #export ROS_SHELL_CHAR="▦"
+    export ROS_SHELL_CHAR="*"
+    mode=${1:-local}
+    if [[ $mode == "remote" ]]; then
+        export TURTLEBOT_IP=192.168.0.100
+        export WORKSTATION_IP=192.168.0.101
+        export ROS_HOSTNAME="${WORKSTATION_IP}"
+        export ROS_MASTER_URI="http://${TURTLEBOT_IP}:11311"
+        export ROS_MODE=remote
+        #export ROS_SHELL_CHAR="▣"
+	export ROS_SHELL_CHAR="@"
+    fi
+#    ros_printenv
+#    shell_info
+    echo "${blue}ROS access granded in ${green}${mode}${reset} mode." 
+}
+
+function ros_make () {
+    roscd
+    cd ..
+    echo "${blue}Running 'catkin_make' in ${green}$(pwd)${reset} folder."
+    catkin_make 
+}
+
+function _ros_help () {
+    echo "Type :"
+    echo "   ${green}roson [remote]${reset} to enable ros."
+    echo "   ${green}rssh [command]${reset} to login to robot."
+    echo "   ${green}multi-net${reset} to setup networks."
+    echo "   ${green}tmuxp load ros-local ${reset}"
+}
+
+## STARTUP
+add_to_path ${HOME}/.local/bin/ros
+shell_info
+#_ros_help
+#export ROS_SHELL_CHAR=""
+
+#eval "$(_TMUXP_COMPLETE=source tmuxp)"
+
+if [[ "$ROS_MODE" != "" ]]; then
+    source ~/.local/bin/ros-session/${ROS_MODE}.sh
+else
+    #echo "Type _ros_help for ros setup"	
+    echo -n
+#    _ros_help
+fi
+

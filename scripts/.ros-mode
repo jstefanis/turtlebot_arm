@@ -1,0 +1,10 @@
+#!/bin/bash
+#export ROS_MODE=rbx
+#export ROS_MODE=local
+#export ROS_MODE=remote
+#export ROS_MODE=pick
+#export ROS_MODE=rtt
+export ROS_MODE=
+#export ROS_MODE=book2
+#export ROS_MODE=pick
+#export ROS_MODE=nathan
